@@ -1,21 +1,6 @@
 version: "3"
 services:
-  service:
-    hostname: go-mongo
-    container_name: go-mongo
-    build:
-      context: .
-    environment:
-      MY_ENV: local-docker
-    ports:
-      - "8080:8080"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://go-mongo:8080/ping"]
-      interval: 10s
-      timeout: 10s
-      retries: 3
-
-  mongo:
+  mongodb:
     image: mongo
     restart: always
     ports:
@@ -23,3 +8,21 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+
+  service:
+    hostname: go-mongo
+    container_name: go-mongo
+    build:
+      context: .
+    depends_on:
+      - mongodb
+    environment:
+      MONGO_DB_NAME: gomongo
+      MONGO_CONNECTION_URI: mongodb://root:example@mongodb:27017
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://go-mongo:8080/ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
