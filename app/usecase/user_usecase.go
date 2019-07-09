@@ -7,9 +7,35 @@ import (
 	"github.com/jedi4z/go-mongodb/app/domain/service"
 )
 
+type UserUC struct {
+	ID        string
+	FirstName string
+	LastName  string
+	Email     string
+}
+
+func toUserUC(user *model.User) *UserUC {
+	return &UserUC{
+		ID:        user.GetID(),
+		FirstName: user.GetFirstName(),
+		LastName:  user.GetLastName(),
+		Email:     user.GetEmail(),
+	}
+}
+
+func toUserUCList(users []*model.User) []*UserUC {
+	res := make([]*UserUC, len(users))
+
+	for i, user := range users {
+		res[i] = toUserUC(user)
+	}
+
+	return res
+}
+
 type UserUsecase interface {
-	ListUser() ([]*User, error)
-	RegisterUser(firstName, lastName, email string) error
+	ListUser() ([]*UserUC, error)
+	RegisterUser(firstName, lastName, email string) (*UserUC, error)
 }
 
 type userUsecase struct {
@@ -24,53 +50,31 @@ func NewUserUsecase(repo repository.UserRepository, service *service.UserService
 	}
 }
 
-func (u *userUsecase) ListUser() ([]*User, error) {
+func (u *userUsecase) ListUser() ([]*UserUC, error) {
 	users, err := u.repo.FindAll()
 
 	if err != nil {
 		return nil, err
 	}
 
-	return toUser(users), nil
+	return toUserUCList(users), nil
 }
 
-func (u *userUsecase) RegisterUser(firstName, lastName, email string) error {
+func (u *userUsecase) RegisterUser(firstName, lastName, email string) (*UserUC, error) {
 	uid, err := uuid.NewRandom()
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := u.service.Duplicated(email); err != nil {
-		return err
+		return nil, err
 	}
 
 	user := model.NewUser(uid.String(), firstName, lastName, email)
 	if err := u.repo.Save(user); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
-}
-
-type User struct {
-	ID        string
-	FirstName string
-	LastName  string
-	Email     string
-}
-
-func toUser(users []*model.User) []*User {
-	res := make([]*User, len(users))
-
-	for i, user := range users {
-		res[i] = &User{
-			ID:        user.GetID(),
-			FirstName: user.GetFirstName(),
-			LastName:  user.GetLastName(),
-			Email:     user.GetEmail(),
-		}
-	}
-
-	return res
+	return toUserUC(user), nil
 }
