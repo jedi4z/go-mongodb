@@ -9,7 +9,7 @@ import (
 
 type UserUsecase interface {
 	ListUser() ([]*User, error)
-	RegisterUser(email string) error
+	RegisterUser(firstName, lastName, email string) error
 }
 
 type userUsecase struct {
@@ -34,7 +34,7 @@ func (u *userUsecase) ListUser() ([]*User, error) {
 	return toUser(users), nil
 }
 
-func (u *userUsecase) RegisterUser(email string) error {
+func (u *userUsecase) RegisterUser(firstName, lastName, email string) error {
 	uid, err := uuid.NewRandom()
 
 	if err != nil {
@@ -45,7 +45,7 @@ func (u *userUsecase) RegisterUser(email string) error {
 		return err
 	}
 
-	user := model.NewUser(uid.String(), email)
+	user := model.NewUser(uid.String(), firstName, lastName, email)
 	if err := u.repo.Save(user); err != nil {
 		return err
 	}
@@ -54,8 +54,10 @@ func (u *userUsecase) RegisterUser(email string) error {
 }
 
 type User struct {
-	ID    string
-	Email string
+	ID        string
+	FirstName string
+	LastName  string
+	Email     string
 }
 
 func toUser(users []*model.User) []*User {
@@ -63,8 +65,10 @@ func toUser(users []*model.User) []*User {
 
 	for i, user := range users {
 		res[i] = &User{
-			ID:    user.GetID(),
-			Email: user.GetEmail(),
+			ID:        user.GetID(),
+			FirstName: user.GetFirstName(),
+			LastName:  user.GetLastName(),
+			Email:     user.GetEmail(),
 		}
 	}
 
