@@ -11,25 +11,25 @@ type RequestHandler interface {
 	pingHandler
 }
 
-type Handler struct {
+type service struct {
 	userUsecase usecase.UserUsecase
 }
 
-func newRequestHandler(ctn *registry.Container) RequestHandler {
-	return &Handler{
+func newService(ctn *registry.Container) RequestHandler {
+	return &service{
 		userUsecase: ctn.Resolve("user-usecase").(usecase.UserUsecase),
 	}
 }
 
-func NewEngine(ctn *registry.Container) *gin.Engine {
+func NewRestEngine(ctn *registry.Container) *gin.Engine {
 	r := gin.Default()
-	h := newRequestHandler(ctn)
+	s := newService(ctn)
 
-	r.GET("/ping", h.handlePing)
-	r.POST("/users", h.handleNewUser)
-	r.GET("/users", h.handleListUsers)
-	r.GET("/users/{id}", h.handleGetUser)
-	r.PUT("/users/{id}", h.handleUpdateUser)
+	r.GET("/ping", s.handlePing)
+	r.POST("/users", s.handleNewUser)
+	r.GET("/users", s.handleListUsers)
+	r.GET("/users/{id}", s.handleGetUser)
+	r.PUT("/users/{id}", s.handleUpdateUser)
 
 	return r
 }

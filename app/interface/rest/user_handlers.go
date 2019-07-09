@@ -40,7 +40,7 @@ type userHandler interface {
 	handleUpdateUser(c *gin.Context)
 }
 
-func (h Handler) handleNewUser(c *gin.Context) {
+func (s service) handleNewUser(c *gin.Context) {
 	var userRest UserDTO
 
 	// Binding userRest data
@@ -50,7 +50,7 @@ func (h Handler) handleNewUser(c *gin.Context) {
 		return
 	}
 
-	user, err := h.userUsecase.RegisterUser(userRest.FirstName, userRest.LastName, userRest.Email)
+	user, err := s.userUsecase.RegisterUser(userRest.FirstName, userRest.LastName, userRest.Email)
 
 	// Register a new userRest
 	if err != nil {
@@ -62,8 +62,8 @@ func (h Handler) handleNewUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, toUserDTO(user))
 }
 
-func (h Handler) handleListUsers(c *gin.Context) {
-	users, err := h.userUsecase.ListUser()
+func (s service) handleListUsers(c *gin.Context) {
+	users, err := s.userUsecase.ListUser()
 	if err != nil {
 		log.Errorf("error getting users: %v", err)
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": err.Error()})
@@ -73,10 +73,10 @@ func (h Handler) handleListUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, toUserDTOList(users))
 }
 
-func (h Handler) handleGetUser(c *gin.Context) {
+func (s service) handleGetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "TODO: get a user"})
 }
 
-func (h Handler) handleUpdateUser(c *gin.Context) {
+func (s service) handleUpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "TODO: update a user"})
 }

@@ -20,7 +20,7 @@ func main() {
 		panic(err)
 	}
 
-	engine := rest.NewEngine(ctn)
+	engine := rest.NewRestEngine(ctn)
 	if err := engine.Run(); err != nil {
 		log.Fatalf("failed to init engine: %v", err)
 		panic(err)
