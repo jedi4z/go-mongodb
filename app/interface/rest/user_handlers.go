@@ -14,7 +14,7 @@ type userHandler interface {
 
 func (h Handler) handleNewUser(c *gin.Context) {
 	if err := h.userUsecase.RegisterUser("jesusdiazbc@gmail.com"); err != nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

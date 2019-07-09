@@ -3,18 +3,21 @@ package mongodb
 import (
 	"context"
 	"github.com/jedi4z/go-mongodb/app/domain/model"
-	"github.com/jedi4z/go-mongodb/common"
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"os"
 	"time"
 )
 
 const (
-	dbName             = "go_mongodb"
-	collectionUser     = "users"
-	mongoConnectionUri = "mongodb://root:example@localhost:27017"
+	dbName         = "go_mongodb"
+	collectionUser = "users"
+)
+
+var (
+	mongoConnectionUri = os.Getenv("MONGO_CONNECTION_URI")
 )
 
 type userRepository struct {
@@ -40,7 +43,7 @@ func (r *userRepository) FindAll() ([]*model.User, error) {
 	results := make([]*model.User, len(r.users))
 
 	ctx := context.TODO()
-	collection := r.mongoClient.Database(common.DBName).Collection(common.CollectionUser)
+	collection := r.mongoClient.Database(dbName).Collection(collectionUser)
 
 	// Passing bson.D{{}} as the filter matches all documents in the collection
 	cur, err := collection.Find(ctx, bson.D{})
@@ -76,7 +79,17 @@ func (r *userRepository) FindAll() ([]*model.User, error) {
 }
 
 func (r *userRepository) FindByEmail(email string) (*model.User, error) {
-	return nil, nil
+	var user User
+
+	ctx := context.TODO()
+	filter := bson.M{"email": email}
+	collection := r.mongoClient.Database(dbName).Collection(collectionUser)
+
+	if err := collection.FindOne(ctx, filter).Decode(&user); err != nil {
+		return nil, err
+	}
+
+	return model.NewUser(user.ID, user.Email), nil
 }
 
 func (r *userRepository) Save(user *model.User) error {
