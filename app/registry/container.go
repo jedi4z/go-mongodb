@@ -2,7 +2,7 @@ package registry
 
 import (
 	"github.com/jedi4z/go-mongodb/app/domain/service"
-	"github.com/jedi4z/go-mongodb/app/interface/persistence/memory"
+	"github.com/jedi4z/go-mongodb/app/interface/persistence/mongodb"
 	"github.com/jedi4z/go-mongodb/app/usecase"
 	"github.com/sarulabs/di"
 )
@@ -40,7 +40,7 @@ func (c *Container) Clean() error {
 }
 
 func buildUserUsecase(ctn di.Container) (interface{}, error) {
-	repo := memory.NewUserRepository()
+	repo := mongodb.NewUserRepository()
 	svc := service.NewUserService(repo)
 
 	return usecase.NewUserUsecase(repo, svc), nil
