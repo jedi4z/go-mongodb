@@ -5,3 +5,6 @@ export $(shell sed 's/=.*//' .env)
 run:
 	docker-compose up -d mongodb
 	go run cmd/gomongo/main.go
+
+rund:
+	docker-compose up -d

@@ -56,13 +56,16 @@ func (s service) handleNewUser(c *gin.Context) {
 		return
 	}
 
-	user, err := s.userUseCase.RegisterUser(userRest.FirstName, userRest.LastName, userRest.Email)
-
 	// Register a new userRest
+	user, err := s.userUseCase.RegisterUser(
+		userRest.FirstName,
+		userRest.LastName,
+		userRest.Email,
+	)
 	if err != nil {
-		log.Errorf("error registering user: %v", err)
+		log.Errorf("impossible to persist a new user: %v", err)
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": fmt.Sprintf("imposible persiste the new user: %v", err),
+			"error": fmt.Sprintf("impossible to persist a new user: %v", err),
 		})
 		return
 	}
@@ -73,9 +76,9 @@ func (s service) handleNewUser(c *gin.Context) {
 func (s service) handleListUsers(c *gin.Context) {
 	users, err := s.userUseCase.ListUser()
 	if err != nil {
-		log.Errorf("error getting users: %v", err)
+		log.Errorf("impossible to get users: %v", err)
 		c.AbortWithStatusJSON(http.StatusServiceUnavailable, gin.H{
-			"error": fmt.Sprintf("imposible get users: %v", err),
+			"error": fmt.Sprintf("impossible to get users: %v", err),
 		})
 		return
 	}
