@@ -12,17 +12,33 @@ import (
 )
 
 const (
-	dbName         = "go_mongodb"
 	collectionUser = "users"
 )
 
 var (
+	dbName             = os.Getenv("MONGO_DB_NAME")
 	mongoConnectionUri = os.Getenv("MONGO_CONNECTION_URI")
 )
 
+type UserDAO struct {
+	ID        string
+	FirstName string
+	LastName  string
+	Email     string
+}
+
+func toUserDAO(user *model.User) *UserDAO {
+	return &UserDAO{
+		ID:        user.GetID(),
+		FirstName: user.GetFirstName(),
+		LastName:  user.GetLastName(),
+		Email:     user.GetEmail(),
+	}
+}
+
 type userRepository struct {
 	mongoClient *mongo.Client
-	users       map[string]*User
+	users       map[string]*UserDAO
 }
 
 func NewUserRepository() *userRepository {
@@ -34,7 +50,7 @@ func NewUserRepository() *userRepository {
 
 	return &userRepository{
 		mongoClient: client,
-		users:       map[string]*User{},
+		users:       map[string]*UserDAO{},
 	}
 }
 
@@ -56,7 +72,7 @@ func (r *userRepository) FindAll() ([]*model.User, error) {
 	// Iterating through the cursor allows us to decode documents one at a time
 	for cur.Next(ctx) {
 		// create a value into which the single document can be decoded
-		var elem User
+		var elem UserDAO
 
 		err := cur.Decode(&elem)
 		if err != nil {
@@ -81,7 +97,7 @@ func (r *userRepository) FindAll() ([]*model.User, error) {
 }
 
 func (r *userRepository) FindByEmail(email string) (*model.User, error) {
-	var elem User
+	var elem UserDAO
 
 	ctx := context.TODO()
 	filter := bson.M{"email": email}
@@ -98,19 +114,7 @@ func (r *userRepository) FindByEmail(email string) (*model.User, error) {
 
 func (r *userRepository) Save(user *model.User) error {
 	collection := r.mongoClient.Database(dbName).Collection(collectionUser)
-	_, err := collection.InsertOne(context.TODO(), &User{
-		ID:        user.GetID(),
-		FirstName: user.GetFirstName(),
-		LastName:  user.GetLastName(),
-		Email:     user.GetEmail(),
-	})
+	_, err := collection.InsertOne(context.TODO(), toUserDAO(user))
 
 	return err
-}
-
-type User struct {
-	ID        string
-	FirstName string
-	LastName  string
-	Email     string
 }

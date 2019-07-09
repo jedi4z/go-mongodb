@@ -7,15 +7,15 @@ import (
 	"net/http"
 )
 
-type UserRest struct {
+type UserDTO struct {
 	ID        string `form:"id" json:"id"`
 	FirstName string `form:"first_name" json:"first_name" binding:"required"`
 	LastName  string `form:"last_name" json:"last_name" binding:"required"`
 	Email     string `form:"email" json:"email" binding:"required"`
 }
 
-func toUserRest(user *usecase.UserUC) *UserRest {
-	return &UserRest{
+func toUserDTO(user *usecase.UserUC) *UserDTO {
+	return &UserDTO{
 		ID:        user.ID,
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
@@ -23,11 +23,11 @@ func toUserRest(user *usecase.UserUC) *UserRest {
 	}
 }
 
-func toUserRestList(users []*usecase.UserUC) []*UserRest {
-	res := make([]*UserRest, len(users))
+func toUserDTOList(users []*usecase.UserUC) []*UserDTO {
+	res := make([]*UserDTO, len(users))
 
 	for i, user := range users {
-		res[i] = toUserRest(user)
+		res[i] = toUserDTO(user)
 	}
 
 	return res
@@ -41,7 +41,7 @@ type userHandler interface {
 }
 
 func (h Handler) handleNewUser(c *gin.Context) {
-	var userRest UserRest
+	var userRest UserDTO
 
 	// Binding userRest data
 	if err := c.ShouldBindJSON(&userRest); err != nil {
@@ -59,7 +59,7 @@ func (h Handler) handleNewUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, toUserRest(user))
+	c.JSON(http.StatusCreated, toUserDTO(user))
 }
 
 func (h Handler) handleListUsers(c *gin.Context) {
@@ -70,7 +70,7 @@ func (h Handler) handleListUsers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, toUserRestList(users))
+	c.JSON(http.StatusOK, toUserDTOList(users))
 }
 
 func (h Handler) handleGetUser(c *gin.Context) {
