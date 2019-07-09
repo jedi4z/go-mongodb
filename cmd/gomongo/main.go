@@ -10,9 +10,12 @@ func main() {
 	ctn, err := registry.NewContainer()
 	if err != nil {
 		log.Fatalf("failed to build container: %v", err)
+		panic(err)
 	}
 
 	engine := rest.NewEngine(ctn)
-
-	engine.Run()
+	if err := engine.Run(); err != nil {
+		log.Fatalf("failed to init engine: %v", err)
+		panic(err)
+	}
 }
