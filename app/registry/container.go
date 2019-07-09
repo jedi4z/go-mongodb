@@ -19,8 +19,8 @@ func NewContainer() (*Container, error) {
 
 	if err := builder.Add([]di.Def{
 		{
-			Name:  "user-usecase",
-			Build: buildUserUsecase,
+			Name:  "user-use-case",
+			Build: buildUserUseCase,
 		},
 	}...); err != nil {
 		return nil, err
@@ -39,9 +39,9 @@ func (c *Container) Clean() error {
 	return c.ctn.Clean()
 }
 
-func buildUserUsecase(ctn di.Container) (interface{}, error) {
+func buildUserUseCase(ctn di.Container) (interface{}, error) {
 	repo := mongodb.NewUserRepository()
 	svc := service.NewUserService(repo)
 
-	return usecase.NewUserUsecase(repo, svc), nil
+	return usecase.NewUserUseCase(repo, svc), nil
 }

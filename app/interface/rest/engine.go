@@ -12,12 +12,12 @@ type RequestHandler interface {
 }
 
 type service struct {
-	userUsecase usecase.UserUsecase
+	userUseCase usecase.UserUseCase
 }
 
 func newService(ctn *registry.Container) RequestHandler {
 	return &service{
-		userUsecase: ctn.Resolve("user-usecase").(usecase.UserUsecase),
+		userUseCase: ctn.Resolve("user-use-case").(usecase.UserUseCase),
 	}
 }
 

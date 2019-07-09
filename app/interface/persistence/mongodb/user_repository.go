@@ -22,6 +22,7 @@ var (
 
 type UserDAO struct {
 	ID        string
+	CreatedAt time.Time
 	FirstName string
 	LastName  string
 	Email     string
@@ -30,6 +31,7 @@ type UserDAO struct {
 func toUserDAO(user *model.User) *UserDAO {
 	return &UserDAO{
 		ID:        user.GetID(),
+		CreatedAt: user.GetCreatedAt(),
 		FirstName: user.GetFirstName(),
 		LastName:  user.GetLastName(),
 		Email:     user.GetEmail(),
@@ -79,7 +81,13 @@ func (r *userRepository) FindAll() ([]*model.User, error) {
 			log.Fatal(err)
 		}
 
-		user := model.NewUser(elem.ID, elem.FirstName, elem.LastName, elem.Email)
+		user := model.NewUser(
+			elem.ID,
+			elem.CreatedAt,
+			elem.FirstName,
+			elem.LastName,
+			elem.Email,
+		)
 
 		results = append(results, user)
 	}
@@ -107,7 +115,13 @@ func (r *userRepository) FindByEmail(email string) (*model.User, error) {
 		return nil, err
 	}
 
-	user := model.NewUser(elem.ID, elem.FirstName, elem.LastName, elem.Email)
+	user := model.NewUser(
+		elem.ID,
+		elem.CreatedAt,
+		elem.FirstName,
+		elem.LastName,
+		elem.Email,
+	)
 
 	return user, nil
 }

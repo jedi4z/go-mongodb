@@ -5,64 +5,66 @@ import (
 	"github.com/jedi4z/go-mongodb/app/domain/model"
 	"github.com/jedi4z/go-mongodb/app/domain/repository"
 	"github.com/jedi4z/go-mongodb/app/domain/service"
+	"time"
 )
 
-type UserUC struct {
+type UserDTO struct {
 	ID        string
+	CreatedAt time.Time
 	FirstName string
 	LastName  string
 	Email     string
 }
 
-func toUserUC(user *model.User) *UserUC {
-	return &UserUC{
+func toUserDTO(user *model.User) *UserDTO {
+	return &UserDTO{
 		ID:        user.GetID(),
+		CreatedAt: user.GetCreatedAt(),
 		FirstName: user.GetFirstName(),
 		LastName:  user.GetLastName(),
 		Email:     user.GetEmail(),
 	}
 }
 
-func toUserUCList(users []*model.User) []*UserUC {
-	res := make([]*UserUC, len(users))
+func toUserDTOList(users []*model.User) []*UserDTO {
+	res := make([]*UserDTO, len(users))
 
 	for i, user := range users {
-		res[i] = toUserUC(user)
+		res[i] = toUserDTO(user)
 	}
 
 	return res
 }
 
-type UserUsecase interface {
-	ListUser() ([]*UserUC, error)
-	RegisterUser(firstName, lastName, email string) (*UserUC, error)
+type UserUseCase interface {
+	ListUser() ([]*UserDTO, error)
+	RegisterUser(firstName, lastName, email string) (*UserDTO, error)
 }
 
-type userUsecase struct {
+type userUseCase struct {
 	repo    repository.UserRepository
 	service *service.UserService
 }
 
-func NewUserUsecase(repo repository.UserRepository, service *service.UserService) *userUsecase {
-	return &userUsecase{
+func NewUserUseCase(repo repository.UserRepository, service *service.UserService) UserUseCase {
+	return &userUseCase{
 		repo:    repo,
 		service: service,
 	}
 }
 
-func (u *userUsecase) ListUser() ([]*UserUC, error) {
+func (u *userUseCase) ListUser() ([]*UserDTO, error) {
 	users, err := u.repo.FindAll()
 
 	if err != nil {
 		return nil, err
 	}
 
-	return toUserUCList(users), nil
+	return toUserDTOList(users), nil
 }
 
-func (u *userUsecase) RegisterUser(firstName, lastName, email string) (*UserUC, error) {
+func (u *userUseCase) RegisterUser(firstName, lastName, email string) (*UserDTO, error) {
 	uid, err := uuid.NewRandom()
-
 	if err != nil {
 		return nil, err
 	}
@@ -71,10 +73,17 @@ func (u *userUsecase) RegisterUser(firstName, lastName, email string) (*UserUC, 
 		return nil, err
 	}
 
-	user := model.NewUser(uid.String(), firstName, lastName, email)
+	user := model.NewUser(
+		uid.String(),
+		time.Now().UTC(),
+		firstName,
+		lastName,
+		email,
+	)
+
 	if err := u.repo.Save(user); err != nil {
 		return nil, err
 	}
 
-	return toUserUC(user), nil
+	return toUserDTO(user), nil
 }
