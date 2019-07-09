@@ -49,9 +49,9 @@ func (h Handler) HandleListUsers(c *gin.Context) {
 	// Finding multiple documents returns a cursor
 	// Iterating through the cursor allows us to decode documents one at a time
 	for cur.Next(c) {
-
 		// create a value into which the single document can be decoded
 		var elem model.User
+
 		err := cur.Decode(&elem)
 		if err != nil {
 			log.Fatal(err)
