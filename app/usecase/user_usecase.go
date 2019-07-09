@@ -26,24 +26,30 @@ func NewUserUsecase(repo repository.UserRepository, service *service.UserService
 
 func (u *userUsecase) ListUser() ([]*User, error) {
 	users, err := u.repo.FindAll()
+
 	if err != nil {
 		return nil, err
 	}
+
 	return toUser(users), nil
 }
 
 func (u *userUsecase) RegisterUser(email string) error {
 	uid, err := uuid.NewRandom()
+
 	if err != nil {
 		return err
 	}
+
 	if err := u.service.Duplicated(email); err != nil {
 		return err
 	}
+
 	user := model.NewUser(uid.String(), email)
 	if err := u.repo.Save(user); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -54,11 +60,13 @@ type User struct {
 
 func toUser(users []*model.User) []*User {
 	res := make([]*User, len(users))
+
 	for i, user := range users {
 		res[i] = &User{
 			ID:    user.GetID(),
 			Email: user.GetEmail(),
 		}
 	}
+
 	return res
 }

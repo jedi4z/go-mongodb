@@ -1,4 +1,4 @@
-package handler
+package rest
 
 import (
 	"github.com/gin-gonic/gin"
@@ -13,11 +13,21 @@ type userHandler interface {
 }
 
 func (h Handler) handleNewUser(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "TODO: get a user"})
+	if err := h.userUsecase.RegisterUser("jesusdiazbc@gmail.com"); err != nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"message": "OK"})
 }
 
 func (h Handler) handleListUsers(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "TODO: get a user"})
+	users, err := h.userUsecase.ListUser()
+	if err != nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, users)
 }
 
 func (h Handler) handleGetUser(c *gin.Context) {
