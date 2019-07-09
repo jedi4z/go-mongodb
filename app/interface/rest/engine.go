@@ -28,8 +28,8 @@ func NewRestEngine(ctn *registry.Container) *gin.Engine {
 	r.GET("/ping", s.handlePing)
 	r.POST("/users", s.handleNewUser)
 	r.GET("/users", s.handleListUsers)
-	r.GET("/users/{id}", s.handleGetUser)
-	r.PUT("/users/{id}", s.handleUpdateUser)
+	r.GET("/users/:id", s.handleGetUser)
+	r.PUT("/users/:id", s.handleUpdateUser)
 
 	return r
 }

@@ -38,29 +38,38 @@ func toUserDTOList(users []*model.User) []*UserDTO {
 
 type UserUseCase interface {
 	ListUser() ([]*UserDTO, error)
+	RetrieveAnUser(id string) (*UserDTO, error)
 	RegisterUser(firstName, lastName, email string) (*UserDTO, error)
 }
 
 type userUseCase struct {
-	repo    repository.UserRepository
-	service *service.UserService
+	repository repository.UserRepository
+	service    *service.UserService
 }
 
 func NewUserUseCase(repo repository.UserRepository, service *service.UserService) UserUseCase {
 	return &userUseCase{
-		repo:    repo,
-		service: service,
+		repository: repo,
+		service:    service,
 	}
 }
 
 func (u *userUseCase) ListUser() ([]*UserDTO, error) {
-	users, err := u.repo.FindAll()
-
+	users, err := u.repository.FindAll()
 	if err != nil {
 		return nil, err
 	}
 
 	return toUserDTOList(users), nil
+}
+
+func (u *userUseCase) RetrieveAnUser(id string) (*UserDTO, error) {
+	user, err := u.repository.FindOne(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return toUserDTO(user), nil
 }
 
 func (u *userUseCase) RegisterUser(firstName, lastName, email string) (*UserDTO, error) {
@@ -81,7 +90,7 @@ func (u *userUseCase) RegisterUser(firstName, lastName, email string) (*UserDTO,
 		email,
 	)
 
-	if err := u.repo.Save(user); err != nil {
+	if err := u.repository.Save(user); err != nil {
 		return nil, err
 	}
 

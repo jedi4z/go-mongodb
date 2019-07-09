@@ -104,6 +104,28 @@ func (r *userRepository) FindAll() ([]*model.User, error) {
 	return results, nil
 }
 
+func (r *userRepository) FindOne(id string) (*model.User, error) {
+	var elem UserDAO
+
+	ctx := context.TODO()
+	filter := bson.M{"id": id}
+	collection := r.mongoClient.Database(dbName).Collection(collectionUser)
+
+	if err := collection.FindOne(ctx, filter).Decode(&elem); err != nil {
+		return nil, err
+	}
+
+	user := model.NewUser(
+		elem.ID,
+		elem.CreatedAt,
+		elem.FirstName,
+		elem.LastName,
+		elem.Email,
+	)
+
+	return user, nil
+}
+
 func (r *userRepository) FindByEmail(email string) (*model.User, error) {
 	var elem UserDAO
 

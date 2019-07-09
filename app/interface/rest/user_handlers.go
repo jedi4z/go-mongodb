@@ -77,7 +77,15 @@ func (s service) handleListUsers(c *gin.Context) {
 }
 
 func (s service) handleGetUser(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "TODO: get a user"})
+	id := c.Param("id")
+	user, err := s.userUseCase.RetrieveAnUser(id)
+	if err != nil {
+		log.Errorf("error getting the user: %v", err)
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, toUserRestDTO(user))
 }
 
 func (s service) handleUpdateUser(c *gin.Context) {
