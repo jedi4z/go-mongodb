@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jedi4z/go-mongodb/app/usecase"
 	log "github.com/sirupsen/logrus"
@@ -49,7 +50,9 @@ func (s service) handleNewUser(c *gin.Context) {
 	// Binding userRest data
 	if err := c.ShouldBindJSON(&userRest); err != nil {
 		log.Errorf("error binding user: %v", err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": fmt.Sprintf("error with data received: %v", err),
+		})
 		return
 	}
 
@@ -58,7 +61,9 @@ func (s service) handleNewUser(c *gin.Context) {
 	// Register a new userRest
 	if err != nil {
 		log.Errorf("error registering user: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": fmt.Sprintf("imposible persiste the new user: %v", err),
+		})
 		return
 	}
 
@@ -69,7 +74,9 @@ func (s service) handleListUsers(c *gin.Context) {
 	users, err := s.userUseCase.ListUser()
 	if err != nil {
 		log.Errorf("error getting users: %v", err)
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusServiceUnavailable, gin.H{
+			"error": fmt.Sprintf("imposible get users: %v", err),
+		})
 		return
 	}
 
@@ -81,7 +88,9 @@ func (s service) handleGetUser(c *gin.Context) {
 	user, err := s.userUseCase.RetrieveAnUser(id)
 	if err != nil {
 		log.Errorf("error getting the user: %v", err)
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"error": fmt.Sprintf("user does not exists: %v", err),
+		})
 		return
 	}
 
